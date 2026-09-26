@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>阳光书房 · 资料库</title>
+<style>
+  :root{
+    --navy:#14508C;
+    --teal:#0E9AA7;
+    --ink:#1F2933;
+    --muted:#6B7785;
+    --line:#E3E7EC;
+    --soft:#F5F7FA;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;background:var(--soft);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    font-size:15px;line-height:1.6;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px 56px}
+
+  header{background:var(--navy);color:#fff;padding:26px 0 22px;margin-bottom:18px}
+  header .wrap{padding-bottom:0}
+  h1{margin:0;font-size:21px;font-weight:600;letter-spacing:.5px}
+  .sub{margin:6px 0 0;font-size:13px;color:rgba(255,255,255,.78)}
+  .notice{
+    margin-top:14px;font-size:12.5px;line-height:1.5;
+    background:rgba(255,255,255,.13);border-radius:8px;padding:8px 12px;color:rgba(255,255,255,.92)
+  }
+
+  .searchbar{display:flex;gap:8px;margin-bottom:14px}
+  input[type=search],input[type=password]{
+    flex:1;padding:11px 14px;font-size:15px;border:1px solid var(--line);
+    border-radius:10px;background:#fff;color:var(--ink);outline:none;font-family:inherit
+  }
+  input[type=search]:focus,input[type=password]:focus{border-color:var(--teal)}
+
+  .filters{margin-bottom:6px}
+  .flabel{font-size:12.5px;color:var(--muted);margin:0 0 7px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+  .chip{
+    padding:6px 13px;font-size:13px;border-radius:999px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);cursor:pointer;user-select:none
+  }
+  .chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+
+  .count{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin-bottom:10px
+  }
+  .card.pinned{border-left:3px solid var(--teal)}
+  .ttl{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px}
+  .tname{font-size:15.5px;font-weight:600;line-height:1.45;margin:0;flex:1}
+  .pin{font-size:11px;color:var(--teal);border:1px solid var(--teal);border-radius:4px;padding:1px 6px;flex:none;margin-top:3px}
+  .lk{font-size:11px;color:#A32D2D;border:1px solid #A32D2D;border-radius:4px;padding:1px 6px;flex:none;margin-top:3px}
+  .unlocked{
+    margin-top:8px;font-size:12.5px;background:rgba(255,255,255,.22);
+    border-radius:8px;padding:6px 12px;color:#fff;display:none
+  }
+  .meta{font-size:12.5px;color:var(--muted);margin:0 0 8px}
+  .meta span:not(:last-child)::after{content:" · ";color:#C6CCD4}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .tag{font-size:12px;color:var(--navy);background:#EEF4FA;border-radius:5px;padding:2px 8px}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  a.btn{
+    display:inline-block;padding:7px 15px;font-size:13.5px;border-radius:8px;
+    text-decoration:none;border:1px solid var(--navy);color:var(--navy);background:#fff
+  }
+  a.btn.main{background:var(--navy);color:#fff}
+  a.btn.ext{border-color:var(--teal);color:var(--teal)}
+  .lockbox{font-size:13px;color:var(--muted);background:#FAFBFC;border:1px dashed var(--line);border-radius:8px;padding:9px 12px}
+  .lockbox b{color:var(--navy);font-weight:600}
+
+  .empty{text-align:center;color:var(--muted);font-size:14px;padding:44px 0}
+  footer{text-align:center;font-size:12px;color:#9AA4AF;padding-top:26px}
+
+  @media (max-width:400px){
+    .tname{font-size:15px}
+    a.btn{padding:7px 12px;font-size:13px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1 id="siteTitle">资料库</h1>
+    <p class="sub" id="siteSub"></p>
+    <div class="notice" id="siteNotice"></div>
+    <div class="unlocked" id="unlockTip"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="searchbar">
+    <input type="search" id="q" placeholder="搜资料名或知识点，比如 一次函数、期中">
+  </div>
+
+  <div class="filters">
+    <p class="flabel">年级</p>
+    <div class="chips" id="fGrade"></div>
+    <p class="flabel">类型</p>
+    <div class="chips" id="fType"></div>
+  </div>
+
+  <p class="count" id="count"></p>
+  <div id="list"></div>
+
+  <footer>阳光书房 · 初中数学</footer>
+</div>
+
+<script>document.write('<scr'+'ipt src="manifest.js?v=' + Date.now() + '"><\/scr'+'ipt>');</script>
+<script>
+(function(){
+  var SITE = window.SITE || {};
+  var DATA = window.MATERIALS || [];
+  var PASS = SITE.passcode || "";
+
+  document.getElementById("siteTitle").textContent = SITE.title || "资料库";
+  document.getElementById("siteSub").textContent = SITE.subtitle || "";
+  var nt = document.getElementById("siteNotice");
+  if (SITE.notice) nt.textContent = SITE.notice; else nt.style.display = "none";
+
+  var unlocked = false;
+  try { unlocked = sessionStorage.getItem("sgs_unlocked") === "1"; } catch(e){}
+
+  var fg = "全部", ft = "全部", kw = "";
+
+  function uniq(key){
+    var s = {}, a = [];
+    DATA.forEach(function(d){ if(d[key] && !s[d[key]]){ s[d[key]]=1; a.push(d[key]); } });
+    return a;
+  }
+  var order = ["七年级","八年级","九年级","通用"];
+  var grades = uniq("grade").sort(function(a,b){
+    var i = order.indexOf(a), j = order.indexOf(b);
+    return (i<0?99:i) - (j<0?99:j);
+  });
+
+  function chips(el, items, cur, onPick){
+    el.innerHTML = "";
+    ["全部"].concat(items).forEach(function(v){
+      var b = document.createElement("div");
+      b.className = "chip" + (v===cur ? " on" : "");
+      b.textContent = v;
+      b.onclick = function(){ onPick(v); };
+      el.appendChild(b);
+    });
+  }
+
+  function chipsType(el, items, cur, onPick){
+    el.innerHTML = "";
+    ["全部"].concat(items).forEach(function(v){
+      var b = document.createElement("div");
+      b.className = "chip" + (v===cur ? " on" : "");
+      b.textContent = v;
+      b.onclick = function(){ onPick(v); };
+      el.appendChild(b);
+    });
+  }
+
+  function render(){
+    var ut = document.getElementById("unlockTip");
+    if (unlocked && PASS){
+      ut.style.display = "block";
+      ut.textContent = "学员区已解锁（关掉页面后要重新输入）";
+    } else {
+      ut.style.display = "none";
+    }
+
+    chips(document.getElementById("fGrade"), grades, fg, function(v){ fg=v; render(); });
+    chipsType(document.getElementById("fType"), uniq("type"), ft, function(v){ ft=v; render(); });
+
+    var k = kw.trim().toLowerCase();
+    var rows = DATA.filter(function(d){
+      if (fg !== "全部" && d.grade !== fg) return false;
+      if (ft !== "全部" && d.type !== ft) return false;
+      if (!k) return true;
+      var hay = [d.name, d.grade, d.type, d.term, (d.tags||[]).join(" ")].join(" ").toLowerCase();
+      return hay.indexOf(k) >= 0;
+    });
+
+    rows.sort(function(a,b){
+      if (!!b.pinned !== !!a.pinned) return (b.pinned?1:0) - (a.pinned?1:0);
+      return String(b.date||"").localeCompare(String(a.date||""));
+    });
+
+    var box = document.getElementById("list");
+    box.innerHTML = "";
+    document.getElementById("count").textContent =
+      "共 " + rows.length + " 份资料" + (k ? "（搜索：" + kw.trim() + "）" : "");
+
+    if (!rows.length){
+      box.innerHTML = '<div class="empty">没找到，换个词试试，<br>或者直接问王老师要。</div>';
+      return;
+    }
+
+    rows.forEach(function(d){
+      var link = d.file || d.url || "";
+      var isExt = !d.file && !!d.url;
+      var locked = d.locked && PASS && !unlocked;
+
+      var c = document.createElement("div");
+      c.className = "card" + (d.pinned ? " pinned" : "");
+
+      var ttl = document.createElement("div");
+      ttl.className = "ttl";
+      var nm = document.createElement("p");
+      nm.className = "tname";
+      nm.textContent = d.name;
+      ttl.appendChild(nm);
+      if (d.pinned){
+        var p = document.createElement("span");
+        p.className = "pin"; p.textContent = "置顶";
+        ttl.appendChild(p);
+      }
+      if (d.locked && PASS){
+        var lk = document.createElement("span");
+        lk.className = "lk"; lk.textContent = "学员区";
+        ttl.appendChild(lk);
+      }
+      c.appendChild(ttl);
+
+      var m = document.createElement("p");
+      m.className = "meta";
+      var bits = [];
+      if (d.grade) bits.push(d.grade);
+      if (d.type) bits.push(d.type);
+      if (d.term) bits.push(d.term);
+      if (d.date) bits.push("更新 " + d.date);
+      if (d.size) bits.push(d.size);
+      m.innerHTML = bits.map(function(s){
+        return "<span>" + s.replace(/</g,"&lt;") + "</span>";
+      }).join("");
+      c.appendChild(m);
+
+      if (d.tags && d.tags.length){
+        var tg = document.createElement("div");
+        tg.className = "tags";
+        d.tags.forEach(function(t){
+          var s = document.createElement("span");
+          s.className = "tag"; s.textContent = t;
+          tg.appendChild(s);
+        });
+        c.appendChild(tg);
+      }
+
+      var acts = document.createElement("div");
+      acts.className = "acts";
+
+      if (locked){
+        var lb = document.createElement("div");
+        lb.className = "lockbox";
+        lb.innerHTML = '这份资料在<b>学员区</b>，输入' + (SITE.passcodeHint||"口令") + '后可见：<br>';
+        var ip = document.createElement("input");
+        ip.type = "password";
+        ip.placeholder = SITE.passcodeHint || "口令";
+        ip.style.marginTop = "7px";
+        ip.onkeydown = function(e){
+          if (e.key === "Enter" && ip.value === PASS){
+            unlocked = true;
+            try { sessionStorage.setItem("sgs_unlocked","1"); } catch(err){}
+            render();
+          }
+        };
+        lb.appendChild(ip);
+        acts.appendChild(lb);
+      } else if (!link){
+        var nb = document.createElement("span");
+        nb.style.cssText = "font-size:13px;color:#9AA4AF";
+        nb.textContent = "文件还没上传";
+        acts.appendChild(nb);
+      } else {
+        var a1 = document.createElement("a");
+        a1.className = "btn main";
+        a1.textContent = isExt ? "前往网盘" : "查看";
+        a1.href = link;
+        if (!isExt){ a1.target = "_blank"; a1.rel = "noopener"; }
+        acts.appendChild(a1);
+
+        if (!isExt){
+          var a2 = document.createElement("a");
+          a2.className = "btn";
+          a2.textContent = "下载";
+          a2.href = link;
+          a2.setAttribute("download", "");
+          acts.appendChild(a2);
+        }
+      }
+      c.appendChild(acts);
+      box.appendChild(c);
+    });
+  }
+
+  document.getElementById("q").addEventListener("input", function(e){
+    kw = e.target.value; render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
